@@ -8,12 +8,12 @@ for r,d,f in os.walk(f'{file_root}/销售数据-门店数据源'):
     for s in f:
         df_xinzeng=pd.read_excel(f'{r}/{s}',skiprows=[0])
         store=pd.concat([store,df_xinzeng])
+store['门店名称']=store['门店名称'].fillna('总计')
 #取门店数据的需要的列
 data=store[['日期','门店名称','线下支付金额','线上支付金额']]
-data=data.loc[(data['门店名称']!='数云小店')&(data['门店名称'].str.contains('联营')==False)&(data['门店名称'].str.contains('虚拟门店')==False)]
+data=data.loc[(data['门店名称']!='数云小店')&(data['门店名称'].str.contains('虚拟门店')==False)&(data['门店名称'].str.contains('测试')==False)]
 #日度门店数据
 data=data.rename(columns={'线下支付金额':'门店销售额','线上支付金额':'门店用户线上销售额'})
-data['门店名称']=data['门店名称'].fillna('总计')
 
 #月度门店销售额
 data_month=data.groupby(by=['门店名称']).aggregate({'门店销售额':'sum','门店用户线上销售额':'sum'}).reset_index()

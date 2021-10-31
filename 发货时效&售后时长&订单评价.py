@@ -2,6 +2,9 @@
 import pandas as pd
 import os
 #处理发货时效表
+a=input('请输入明细展示开始时间yyyy-mm-dd：')
+start_time=pd.to_datetime(a)
+
 file_root=r'E:\10-数据统一输出\报表自动化\发货时效&售后时长&订单评价\商品维度订单表（自定义）'
 df=pd.DataFrame()
 for r,d,f in os.walk(file_root):
@@ -104,14 +107,18 @@ result_tuikuan['时长中位数']=result_tuikuan['时长中位数'].apply(str).s
 result_tuikuan=result_tuikuan.pivot_table(values=['平均时长','最长时长','时长中位数'],index=['日期'],columns='分类',aggfunc={'平均时长':sum,'最长时长':sum,'时长中位数':sum})#一种实现方式
 #处理订单评价
 pingjia=pd.read_csv(r'E:\10-数据统一输出\报表自动化\发货时效&售后时长&订单评价\订单评价\订单评价明细.csv',encoding='gb18030')
-mingxi=pd.read_csv(r'E:\10-数据统一输出\报表自动化\发货时效&售后时长&订单评价\订单评价\订单评价明细_新增.csv',encoding='gb18030')
+mingxi=pingjia.loc[pingjia['评价日期']>= a]
+
+# mingxi=pd.read_csv(r'E:\10-数据统一输出\报表自动化\发货时效&售后时长&订单评价\订单评价\订单评价明细_新增.csv',encoding='gb18030')
 pingjia_group=pingjia.groupby(['评价日期','星级']).aggregate({'订单号':'count'}).unstack()
 pingjia_group=pingjia_group.droplevel(0,axis=1)
 pingjia_num=pingjia.groupby('评价日期').aggregate({'订单号':'count'})
 pingjia_num=pingjia_num.rename(columns={'订单号':'评价数量'})
 pingjia_result=pd.merge(pingjia_num,pingjia_group,on='评价日期')
+
+date=pingjia['评价日期'].max()
 #结果写出
-with pd.ExcelWriter(r'E:\10-数据统一输出\报表自动化\发货时效&售后时长&订单评价\发货时效&退款时长&订单评价.xlsx') as writer:
+with pd.ExcelWriter(r'E:\10-数据统一输出\报表自动化\发货时效&售后时长&订单评价\发货时效&退款时长&订单评价'+date+'.xlsx') as writer:
     result.to_excel(writer, sheet_name='发货时效表')
     result_tuikuan .to_excel(writer, sheet_name='退款时长表')
     pingjia_result.to_excel(writer, sheet_name='评价汇总')

@@ -98,7 +98,9 @@ df_goodslist['1级分类']=df_goodslist.apply(lambda x : getone(x['分组（必�
 df_goodslist['2级分类']=df_goodslist['1级分类']
 df_goodslist=df_goodslist.fillna({'二级类目':'未区分'})
 df_goodslist['2级分类'].loc[df_goodslist['二级类目'].str.contains('尿裤')]='1.1尿裤'
-df_goodslist['2级分类'].loc[df_goodslist['二级类目'].str.contains('三巾')]='1.2三巾'
+df_goodslist['2级分类'].loc[df_goodslist['二级类目'].str.contains('湿巾')]='1.2湿巾'
+df_goodslist['2级分类'].loc[df_goodslist['二级类目'].str.contains('云柔巾')]='1.3云柔巾'
+df_goodslist['2级分类'].loc[df_goodslist['二级类目'].str.contains('棉柔巾')]='1.4棉柔巾'
 #匹配自营的结果
 df_goodslist_gbcf=df_goodslist.drop_duplicates(subset=['商品id（必填）'])#商品ID去重后的分类表
 

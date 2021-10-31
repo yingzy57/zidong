@@ -38,14 +38,15 @@ fans_num=fans_num.rename(columns={'unionid':'加粉数'})
 #只留下加粉号的订单
 order=pd.merge(order,jiafenhao,left_on='账号',right_on='手机号',how='inner')
 #匹配好友列表和订单
-data=pd.merge(order,fans,left_on='昵称',right_on='客户名称',how='inner')
+fans_d = fans.drop_duplicates(subset=['客户名称'])
+data=pd.merge(order,fans_d,left_on='昵称',right_on='客户名称',how='inner')
 
 #计算订单金额和下单人数
 amount=data.groupby(['添加日期','秒回标签']).aggregate({'下单金额':'sum'}).reset_index()
 
 #下单用户数
-pivot_count=data.pivot_table(values='unionid_y',index=['添加日期','秒回标签'],aggfunc=lambda x: len(x.unique()),fill_value=0,margins=False).reset_index()
-pivot_count=pivot_count.rename(columns={'unionid_y':'下单人数'})
+pivot_count=data.pivot_table(values='buyer_mobile',index=['添加日期','秒回标签'],aggfunc=lambda x: len(x.unique()),fill_value=0,margins=False).reset_index()
+pivot_count=pivot_count.rename(columns={'buyer_mobile':'下单人数'})
 #合并粉丝数、下单人数、下单金额
 mer=pd.merge(fans_num,pivot_count,on=['添加日期','秒回标签'],how='left')
 res=pd.merge(mer,amount,on=['添加日期','秒回标签'],how='left')

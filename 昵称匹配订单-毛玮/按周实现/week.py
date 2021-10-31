@@ -63,7 +63,7 @@ res=pd.merge(result,pivot_count,on=['客户周数','订单周数','类型'],how=
 #有效订单
 df_youxiao=df[(df['成交金额']!=0)&(df['成交金额']!=0.01)]
 #根据订单金额和结算状态做筛选
-df_youxiao=df_youxiao[(df_youxiao['结算状态']!='待付款')&(df_youxiao['结算状态']!='订单关闭')&(df_youxiao['结算状态']!='不结算,全额退款')]
+# df_youxiao=df_youxiao[(df_youxiao['结算状态']!='待付款')&(df_youxiao['结算状态']!='订单关闭')&(df_youxiao['结算状态']!='不结算,全额退款')]
 #有效订单和好友匹配
 df_youxiao=pd.merge(data[['昵称','客户周数']],df_youxiao,left_on='昵称',right_on='客户昵称')
 df_youxiao['下单人数']=df_youxiao['客户手机号'].apply(str)

@@ -16,10 +16,10 @@ for r,d,f in os.walk(f'{file_root}/销售数据-门店数据源'):
 xiaochengxu=xiaochengxu[['日期','门店名称','新增会员数']]
 xiaochengxu=xiaochengxu.rename(columns={'新增会员数':'小程序入会数'})
 #维护门店名称
-xiaochengxu['门店名称']=xiaochengxu['门店名称'].str.replace('华东区', '').str.replace('华南区', '').str.replace('华中区', '')
+xiaochengxu['门店名称']=xiaochengxu['门店名称'].str.replace('华东区', '').str.replace('华南区', '').str.replace('华中区', '').str.replace('华北区', '')
 #得到小程序入会数按店按天的结果
 xiaochengxu_pot=xiaochengxu.pivot_table(values='小程序入会数',index=['日期','门店名称']).reset_index()
-xiaochengxu_pot=xiaochengxu_pot.loc[(xiaochengxu_pot['门店名称']!='数云小店')&(xiaochengxu_pot['门店名称'].str.contains('联营')==False)&(xiaochengxu_pot['门店名称'].str.contains('虚拟门店')==False)]
+xiaochengxu_pot=xiaochengxu_pot.loc[(xiaochengxu_pot['门店名称']!='数云小店')&(xiaochengxu_pot['门店名称'].str.contains('虚拟门店')==False)]
 
 #读取企微新增数据源，获取企微新增人数
 qiwei=pd.DataFrame()
@@ -31,9 +31,9 @@ qiwei=qiwei[['客户名称','添加人','添加人帐号','添加人所属部门
 qiwei['添加时间']=pd.to_datetime(qiwei['添加时间'])
 qiwei['日期']=qiwei['添加时间'].dt.date
 #判断应该计入的门店
-qiwei=qiwei.loc[(qiwei['添加人所属部门'].str.contains('华中区')==True)|(qiwei['添加人所属部门'].str.contains('华南区')==True)| (qiwei['添加人所属部门'].str.contains('华东区')==True)]
+qiwei=qiwei.loc[(qiwei['添加人所属部门'].str.contains('华中区')==True)|(qiwei['添加人所属部门'].str.contains('华南区')==True)| (qiwei['添加人所属部门'].str.contains('华东区')==True)| (qiwei['添加人所属部门'].str.contains('华北区')==True)]
 #剔除不应该计入的门店
-qiwei=qiwei.loc[(qiwei['添加人所属部门']!='数云小店')&(qiwei['添加人所属部门'].str.contains('联营')==False)&(qiwei['添加人所属部门'].str.contains('虚拟门店')==False)]
+qiwei=qiwei.loc[(qiwei['添加人所属部门']!='数云小店')&(qiwei['添加人所属部门'].str.contains('虚拟门店')==False)]
 #根据添加人所属部门得到门店名称
 qiwei['企微门店名称']=qiwei['添加人所属部门'].str.split('/',expand=True)[2].str.split('[',expand=True)[0]
 #透视出企微新增人数按店按天的结果
@@ -59,7 +59,7 @@ for url in jiaoji['链接']:
 #记得修改cookie，企微
 
     headers = {'Accept': 'application/json',
-               'Cookie': 'pgv_pvid=8702423126; wwrtx.i18n_lan=zh; wwrtx.c_gdpr=0; _ga=GA1.2.2138374076.1633767087; wwrtx.ref=direct; wwrtx.refid=387923075786; _gid=GA1.2.97874354.1635131380; wwrtx.d2st=a3091623; wwrtx.sid=V_CVeF-W8pcgpWYFEnEoeejjYVMLrCH_6-tD9sqLH3PFyMDm0n97AQTIzROb7oAv; wwrtx.ltype=1; wwrtx.vst=JnQ7LZUGyG7m847G0XaeJ37ic40mZPUBY20FiMMAvdZfzMC9Z_2GjrGg4esJkOrCPbrjicJtVMCbjxUwDENmvGmUbMsRnR_m5eNthWzj5j7a1ZglpOv3yoG3hVlDfDCt8S17kIQkDSyr62uFdvRCdnHZcKFXjlPNmHV6pIRh9JdYyz2WyhE9ldIvSi9A5K4FmEX2tkzFFu5LGwaidqN4SGA-fdDYsQMLyJRTt3VBNxuQlEjPD8qu4kWSbR62a1rTxk5-9ne6wWntFtVRTDgIog; wwrtx.vid=1688857201249092; wxpay.corpid=1970325100456971; wxpay.vid=1688857201249092; wwrtx.cs_ind=; wwrtx.logined=true; _gat=1'}
+               'Cookie': 'pgv_pvid=8702423126; wwrtx.i18n_lan=zh; wwrtx.c_gdpr=0; _ga=GA1.2.2138374076.1633767087; tvfe_boss_uuid=27d6487bba46acf5; RK=knb1wYKfEH; ptcz=cc45513a90bad0e91f05faddce15551691359d1a39520a99e517ab760f0cbaab; wwrtx.ref=direct; wwrtx.refid=35304162502219757; _gid=GA1.2.332190109.1637113020; wwrtx.d2st=a9317568; wwrtx.sid=V_CVeF-W8pcgpWYFEnEoeQv0n1R_K9g2tiHtyW_6gagvfoYAf3j5kBRE5min6rGL; wwrtx.ltype=1; wwrtx.vst=G0sqHOOzYMaZ6K7jzWfXJg_uQ-ble1B6RALjgpSHJM2pL0ezBxWPPIm1gAT_ySm4RTPHXEA9340UTnibPRJOsTOMeYZ9bicvB8aNJRh1jDLIH_SnQUllntLu2QEFS28h1vWR2EwwTeHCPqo-J5ouEyQ13xojfNAo1BbPN14OFR0cl8YQrOPUtbn8OKP5msxej46KuXaiRjq8wvZGMC75IrtKh-rFhOVxa2xH33Oc3lVCcLQl2gRHqlxRSIsMS1oYRBcpYpA5FPxhark3NmN--A; wwrtx.vid=1688857201249092; wxpay.corpid=1970325100456971; wxpay.vid=1688857201249092; wwrtx.cs_ind=; wwrtx.logined=true; _gat=1'}
     html = requests.get(url, headers=headers)
     if html.status_code == 200:
         res = json.loads(html.text)
@@ -77,7 +77,7 @@ for url in jiaoji['链接']:
 #透视出群成员新增人数按店按天的结果
 merbers_pot=merbers.pivot_table(values='name',index=['群聊门店名称','joindate'],aggfunc='count').reset_index()
 merbers_pot=merbers_pot.rename(columns={'name':'群新增人数','joindate':'日期'})
-merbers_pot=merbers_pot.loc[(merbers_pot['群聊门店名称']!='数云小店')&(merbers_pot['群聊门店名称'].str.contains('联营')==False)&(merbers_pot['群聊门店名称'].str.contains('虚拟门店')==False)]
+merbers_pot=merbers_pot.loc[(merbers_pot['群聊门店名称']!='数云小店')&(merbers_pot['群聊门店名称'].str.contains('虚拟门店')==False)]
 
 name_check=pd.read_excel((f'{file_root}/加粉数据-每日维护数据源/门店名称&群聊信息表.xlsx'),sheet_name='门店名称对照表')
 #把店名统一
