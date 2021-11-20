@@ -47,19 +47,35 @@ def gettime(timeStamp):
     jointime = dateArray.strftime("%Y/%m/%d %H:%M:%S")
     return jointime
 #微信群名单，检查是否有未维护链接的群聊，需要链接全部维护爬取全部数据
-qun=pd.read_excel((f'{file_root}/加粉数据-每日维护数据源/客户群列表.xlsx'))
-qunroot=pd.read_excel((f'{file_root}/加粉数据-每日维护数据源/门店名称&群聊信息表.xlsx'),sheet_name='门店群聊链接')
-qun=qun.loc[(qun['群名'].str.contains('宠粉')==True)&(qun['群主'].str.contains('babycare专属顾问云小默')==True)]
-chaji = pd.concat([qun, qunroot, qunroot]).drop_duplicates(['群名'],keep=False)
-jiaoji=pd.merge(qun[['群名']],qunroot,on='群名')
-#空dataframe用来存储每一个群的群成员明细
-merbers=pd.DataFrame()
-for url in jiaoji['链接']:
+# qun=pd.read_excel((f'{file_root}/加粉数据-每日维护数据源/客户群列表.xlsx'))
+# qunroot=pd.read_excel((f'{file_root}/加粉数据-每日维护数据源/门店名称&群聊信息表.xlsx'),sheet_name='门店群聊链接')
+# qun=qun.loc[(qun['群名'].str.contains('宠粉')==True)&(qun['群主'].str.contains('babycare专属顾问云小默')==True)]
+# chaji = pd.concat([qun, qunroot, qunroot]).drop_duplicates(['群名'],keep=False)
+# jiaoji=pd.merge(qun[['群名']],qunroot,on='群名')
 
 #记得修改cookie，企微
-
-    headers = {'Accept': 'application/json',
-               'Cookie': 'pgv_pvid=8702423126; wwrtx.i18n_lan=zh; wwrtx.c_gdpr=0; _ga=GA1.2.2138374076.1633767087; tvfe_boss_uuid=27d6487bba46acf5; RK=knb1wYKfEH; ptcz=cc45513a90bad0e91f05faddce15551691359d1a39520a99e517ab760f0cbaab; wwrtx.ref=direct; wwrtx.refid=35304162502219757; _gid=GA1.2.332190109.1637113020; wwrtx.d2st=a9317568; wwrtx.sid=V_CVeF-W8pcgpWYFEnEoeQv0n1R_K9g2tiHtyW_6gagvfoYAf3j5kBRE5min6rGL; wwrtx.ltype=1; wwrtx.vst=G0sqHOOzYMaZ6K7jzWfXJg_uQ-ble1B6RALjgpSHJM2pL0ezBxWPPIm1gAT_ySm4RTPHXEA9340UTnibPRJOsTOMeYZ9bicvB8aNJRh1jDLIH_SnQUllntLu2QEFS28h1vWR2EwwTeHCPqo-J5ouEyQ13xojfNAo1BbPN14OFR0cl8YQrOPUtbn8OKP5msxej46KuXaiRjq8wvZGMC75IrtKh-rFhOVxa2xH33Oc3lVCcLQl2gRHqlxRSIsMS1oYRBcpYpA5FPxhark3NmN--A; wwrtx.vid=1688857201249092; wxpay.corpid=1970325100456971; wxpay.vid=1688857201249092; wwrtx.cs_ind=; wwrtx.logined=true; _gat=1'}
+headers = {'Accept': 'application/json',
+           'Cookie': 'pgv_pvid=8702423126; wwrtx.i18n_lan=zh; wwrtx.c_gdpr=0; _ga=GA1.2.2138374076.1633767087; tvfe_boss_uuid=27d6487bba46acf5; RK=knb1wYKfEH; ptcz=cc45513a90bad0e91f05faddce15551691359d1a39520a99e517ab760f0cbaab; wwrtx.ref=direct; wwrtx.refid=35304162502219757; wwrtx.ltype=1; wwrtx.vid=1688857201249092; wxpay.corpid=1970325100456971; wxpay.vid=1688857201249092; wwrtx.cs_ind=; wwrtx.logined=true; wwopen.open.sid=wxpRi3SI-Ajls2MCHT_7_IPVBh_EceBP9ehdzE8vNAyf8xJ8WjQZnms87c25I2lOU; _gid=GA1.2.1127304030.1637285687; wwrtx.d2st=a2792597; wwrtx.sid=V_CVeF-W8pcgpWYFEnEoeTTCmFw8V9kH3ArBfZzuR7_vdbJdwN9ENaeMqR_iJEQw; wwrtx.vst=A2zr0bcDZkJhzS2fxvUkdrvv0OIOW-lZgA2dounLUPnQqQ7az6uTnZNXh7sgIEoHJIiraSke41SIvmcxx_BUwWXcl5wljjmIr9bom1vzZ_S0T5RzR9HSbKnL8egmINOVAudqJRe3XgQ9eYVmuFVgZRrK6uCZczTiUbjeJKRPkJThxucjsvFgOfYVrEcY1hAuyJ9x7Sq-pRQGbu2VdRWByzeTpNBEVxMKcQy1JoXKYz9hCMbO3qLZ_1E5xXiIDXrV-Gab_N85WYVzdiT2g04VCw; _gat=1'}
+qun_url='https://work.weixin.qq.com/wework_admin/customer/getGroupChatList?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.27580874473608263&off_set=0&limit=1000&create_ts_begin=1616947200&create_ts_end=1637126103&page=1&accurate_keywords=&_d2st=a7365477'
+#获取群列表
+qun_html = requests.get(qun_url, headers=headers)
+qun_res = json.loads(qun_html.text)
+qun_data = qun_res.get('data').get('datalist')
+roomid=[]
+roomname=[]
+adminName=[]
+departName=[]
+for q in qun_data:
+    roomid.append(q['roomid'])
+    roomname.append(q['roomname'])
+    adminName.append(q['adminName'])
+    departName.append(q['departName'])
+qun=pd.DataFrame({'群ID':roomid,'群名':roomname,'群主':adminName,'添加人所属部门':departName})
+qun=qun.loc[(qun['群名'].str.contains('宠粉')==True)&(qun['群主'].str.contains('babycare专属顾问云小默')==True)]
+#空dataframe用来存储每一个群的群成员明细
+merbers=pd.DataFrame()
+for i in qun['群ID']:
+    url='https://work.weixin.qq.com/wework_admin/customer/qun/getRoomMemberList?lang=zh_CN&f=json&ajax=1&timeZoneInfo%5Bzone_offset%5D=-8&random=0.5089270467600053&off_set=0&limit=800&roomid='+i+'&page=1&_d2st=a7365477'
     html = requests.get(url, headers=headers)
     if html.status_code == 200:
         res = json.loads(html.text)
@@ -68,7 +84,7 @@ for url in jiaoji['链接']:
         xinzeng_members['jointime']= xinzeng_members['jointime'].map(lambda x :gettime(x) )
         xinzeng_members['jointime']=pd.to_datetime(xinzeng_members['jointime'])
         xinzeng_members['joindate']=xinzeng_members['jointime'].dt.date
-        qun_name=jiaoji.loc[jiaoji['链接']==url]['群名']
+        qun_name=qun.loc[qun['群ID']==i]['群名']
         xinzeng_members['群名']=qun_name.values[0]
         merbers = pd.concat([merbers, xinzeng_members])
         merbers['群聊门店名称']=merbers['群名'].str.replace('babycare', '').str.split('宠粉',expand=True)[0]
@@ -111,5 +127,5 @@ with pd.ExcelWriter(f'{file_root}/各门店每日粉丝数据{mi}-{ma}.xlsx') as
     data_daily.to_excel(writer, sheet_name='按天',index=True)
     data_store.to_excel(writer, sheet_name='按店',index=True)
     data_daily_store.to_excel(writer, sheet_name='按店按天',index=True)
-    chaji.to_excel(writer, sheet_name='未维护链接的群聊',index=False)
+
 
